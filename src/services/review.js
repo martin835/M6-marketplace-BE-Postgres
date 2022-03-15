@@ -15,7 +15,7 @@ reviewsRouter.get("/", async (req, res, next) => {
 });
 
 //2 POST a review
-reviewsRouter.post("/", async (req, res, next) => {
+reviewsRouter.post("/:productId", async (req, res, next) => {
   try {
     console.log(
       "POST - This is Object.values(req.body): ",
@@ -24,8 +24,8 @@ reviewsRouter.post("/", async (req, res, next) => {
     console.log("POST - This is just req.body: ", req.body);
 
     const data = await pool.query(
-      "INSERT INTO review(review_comment, rate) VALUES($1, $2) RETURNING *",
-      Object.values(req.body)
+      "INSERT INTO review(review_comment, rate, product ) VALUES($1, $2, $3) RETURNING *",
+      [...Object.values(req.body), req.params.productId]
     );
 
     const review = data.rows[0];
@@ -50,7 +50,7 @@ reviewsRouter.put("/:id", async (req, res, next) => {
     if (isUpdated) {
       res.status(200).send(data.rows[0]);
     } else {
-      res.status(404).send({ message: "Cannot be edited - Product not found" });
+      res.status(404).send({ message: "Cannot be edited - Review not found" });
     }
   } catch (error) {
     res.status(500).send({ message: error.message });
