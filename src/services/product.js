@@ -15,3 +15,25 @@ productsRouter.get("/", async (req, res, next) => {
 });
 
 export default productsRouter;
+
+//2 POST a product
+productsRouter.post("/", async (req, res, next) => {
+  try {
+    console.log(
+      "POST - This is Object.values(req.body): ",
+      Object.values(req.body)
+    );
+    console.log("POST - This is just req.body: ", req.body);
+
+    const data = await pool.query(
+      "INSERT INTO product(product_name, price, description) VALUES($1, $2, $3) RETURNING *",
+      Object.values(req.body)
+    );
+
+    const product = data.rows[0];
+
+    res.status(201).send(product);
+  } catch (error) {
+    console.log(error);
+  }
+});
